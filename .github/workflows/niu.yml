@@ -38,7 +38,7 @@ jobs:
         updated_data=$(echo $response | python -c "import sys, json; data = json.load(sys.stdin); data['spider'] = '${{ env.SPIDER_URL }}'; print(json.dumps(data))")
 
         # Save updated data to a file
-          cd ${{ .github/workflows }}
+          cd ${{ github.workspace }}
           file="wex.json"
           echo "$updated_data" > $file
         # 文件夹ID
