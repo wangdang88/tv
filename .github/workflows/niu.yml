@@ -1,0 +1,51 @@
+name: Update Spider
+
+on:
+  push:
+
+jobs:
+  update-spider:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Step 2: Setup Python
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    # Step 3: Install necessary dependencies
+    - name: Install Dependencies
+      run: python -m pip install requests
+
+    # Step 4: Get Spider Field and set environment variable
+    - name: Get Spider Field
+      run: |
+        SPIDER_URL=$(python -c "import requests; print(requests.get('https://9280.kstore.space/wex.json').json()['spider'])")
+        echo "SPIDER_URL=$SPIDER_URL" >> $GITHUB_ENV
+
+    # Step 5: Update Spider Field
+    - name: Update Spider Field
+      run: |
+        # Fetch existing data
+        response=$(curl -s https://7699.kstore.space/wex.json)
+        
+        # Update the 'spider' field with the new value
+        updated_data=$(echo $response | python -c "import sys, json; data = json.load(sys.stdin); data['spider'] = '${{ env.SPIDER_URL }}'; print(json.dumps(data))")
+
+        # Save updated data to a file
+          cd ${{ github.workspace }}
+          file="wex.json"
+          echo "$updated_data" > $file
+        # 文件夹ID
+          id=0
+          
+        #凯速的 KStore API access_token
+          token="7699-14ba89fb467d41ef83580450c6e49150"
+          
+        # file="bbbs.jpeg"
+          curl https://upload.kstore.space/upload/$id?access_token=$token -F "file=@$file"
